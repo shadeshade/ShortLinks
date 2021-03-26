@@ -13,4 +13,14 @@ services:
        MYSQL_ROOT_PASSWORD: 'testing321'
 
     volumes:
-          - ./database:/var/lib/postgresql/data
+          - ./database:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - '6379:6379'
+
+volumes:
+  db_data:
+
