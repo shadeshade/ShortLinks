@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             sql='''CREATE EVENT remove_scheduler 
-                    ON SCHEDULE EVERY 20 SECOND 
+                    ON SCHEDULE EVERY 1 HOUR 
                     DO DELETE FROM 
-                    Core_link WHERE created_at < NOW() - INTERVAL 1 MINUTE;''',
+                    Core_link WHERE created_at < NOW() - INTERVAL 7 DAY;''',
             reverse_sql=migrations.RunSQL.noop
         ),
     ]

@@ -1,32 +1,15 @@
-import secrets
-
 import redis
 from django.contrib import messages
-from django.contrib.sessions.models import Session
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import ListView, RedirectView
 
 from .forms import LinkCreate
 from .models import Link
+from .tools import get_session, get_unique_val
 
 client = redis.Redis(host='127.0.0.1', port=6379)
 
-
-def get_session(request):
-    if request.session.session_key is None:
-        request.session.save()
-    session_key = request.session.session_key
-    return Session.objects.get(session_key=session_key)
-
-
-def get_unique_val(value):
-    is_unique = False
-    while not is_unique:
-        value = secrets.token_urlsafe(nbytes=5)
-        if not Link.objects.filter(subpart=value):
-            is_unique = True
-    return value
 
 
 class Home(ListView):
@@ -49,19 +32,19 @@ class Home(ListView):
         if form.is_valid():
             data = form.cleaned_data
             self.object_list = self.get_queryset()
-            context = self.get_context_data()
 
-            context['main_part'] = data.get('main_part')
-            context['subpart'] = data.get('subpart')
+            main_part = data.get('main_part')
+            subpart = data.get('subpart')
 
-            if context['subpart'] == '':
-                context['subpart'] = get_unique_val(context['subpart'])
+            if subpart == '':
+                subpart = get_unique_val(subpart)
 
             session = get_session(request)
-            new_link = Link.objects.create(main_part=context['main_part'], subpart=context['subpart'],
+            new_link = Link.objects.create(main_part=main_part, subpart=subpart,
                                            session=session)
             new_link.save()
-            client.set(context['subpart'], context['main_part'], ex=600)
+            context = self.get_context_data()
+            client.set(subpart, main_part, ex=600)
 
             return super(Home, self).render_to_response(context)
         else:
