@@ -1,11 +1,11 @@
 from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import ListView, RedirectView
 
 from .forms import LinkCreate
 from .models import Link
-from .tools import get_session, create_rule, client
+from .tools import get_session, create_rule, get_redirect_url
 
 
 class Home(ListView):
@@ -40,9 +40,10 @@ class Home(ListView):
 
 class LinkRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
-        if client.get(kwargs['short_link']):
-            link = client.get(kwargs['short_link'])
-        else:
-            link = get_object_or_404(Link, subpart=kwargs['short_link'])
-            link = link.main_part
-        return link
+        redirect_link = get_redirect_url(kwargs['short_link'])
+        return redirect_link
+
+
+
+
+
