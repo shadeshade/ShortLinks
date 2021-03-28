@@ -1,3 +1,5 @@
 /venv/
 /ShortLinks/.idea
 /db.sqlite3
+/database/
+/.env
